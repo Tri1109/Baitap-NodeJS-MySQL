@@ -1,3 +1,6 @@
+create DATABASE db_restaurant;
+use db_restaurant;
+
 -- Tạo bảng users
 CREATE TABLE users (
     user_name VARCHAR(50),
@@ -199,3 +202,40 @@ CREATE TABLE sub_food (
     food_id INT,
     FOREIGN KEY (food_id) REFERENCES food (food_id)
 );
+
+
+------------------ câu 1: tìm 5 người like nhà hàng nhiều nhất
+SELECT u.user_name, u.email, COUNT(lr.like_res_id) AS like_count
+FROM like_res lr
+JOIN users u ON lr.user_id = u.user_id
+GROUP BY lr.user_id, u.user_name, u.email
+ORDER BY like_count DESC
+LIMIT 5;
+
+------------------ câu 2: tìm 2 nhà hàng có lượt like nhiều nhất
+SELECT r.res_name, r.description, COUNT(lr.like_res_id) AS like_count
+FROM like_res lr
+JOIN restaurant r ON lr.res_id = r.res_id
+GROUP BY r.res_id, r.res_name, r.description
+ORDER BY like_count DESC
+LIMIT 2;
+
+------------------ câu 3: tìm người đã đặt hàng nhiều nhất
+SELECT u.user_name, u.email, COUNT(o.order_id) AS order_count
+FROM orders o
+JOIN users u ON o.user_id = u.user_id
+GROUP BY o.user_id, u.user_name, u.email
+ORDER BY order_count DESC
+LIMIT 1;
+
+------------------ câu 4: Tìm người dùng không hoạt động trong hệ thống(không đặt hàng, không like, không đánh giá nhà hàng).
+SELECT u.user_name, u.email
+FROM users u
+LEFT JOIN orders o ON u.user_id = o.user_id
+LEFT JOIN like_res lr ON u.user_id = lr.user_id
+LEFT JOIN rate_res rr ON u.user_id = rr.user_id
+WHERE o.order_id IS NULL AND lr.like_res_id IS NULL AND rr.rate_res_id IS NULL;
+
+
+
+
